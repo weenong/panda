@@ -5,6 +5,7 @@ import com.yukong.panda.common.constants.PandaServiceNameConstants;
 import com.yukong.panda.common.util.ApiResult;
 import com.yukong.panda.gen.model.dto.BuildConfigDTO;
 import com.yukong.panda.gen.model.entity.TableInfo;
+import com.yukong.panda.gen.model.query.BuildConfigQuery;
 import com.yukong.panda.gen.model.query.TableInfoQuery;
 import com.yukong.panda.gen.service.SysGenService;
 import com.yukong.panda.gen.service.TableInfoService;
@@ -42,6 +43,9 @@ public class SysGenController {
     @Autowired
     private SysGenService sysGenService;
 
+    @Autowired
+    private BuildConfigQuery buildConfigQuery;
+
   //  @SysLog(serviceId = PandaServiceNameConstants.PANDA_GEN_SERVICE, moduleName = MODULE_NAME, actionName = "分页查询数据库中所有的表信息")
     @ApiOperation(value = "分页查询数据库中所有的表信息", notes = "分页查询数据库中所有的表信息", httpMethod = "GET")
     @ApiImplicitParam(name = "query", value = "表信息查询条件", required = false, dataType = "TableInfoQuery")
@@ -49,6 +53,13 @@ public class SysGenController {
     @GetMapping("/table/page")
     public ApiResult<TableInfoQuery> page(TableInfoQuery query){
         return new ApiResult<>(tableInfoService.pageByQuery(query));
+    }
+
+    @ApiOperation(value = "获取代码生成的默认配置信息", notes = "获取代码生成的默认配置信息", httpMethod = "GET")
+    @ResponseBody
+    @GetMapping("/buildconfiginfo")
+    public ApiResult<BuildConfigQuery> buildConfigInfo(){
+        return new ApiResult<>(buildConfigQuery);
     }
 
 

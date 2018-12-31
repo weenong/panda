@@ -1,0 +1,22 @@
+package $tableInfo.serviceApiPackageName;
+
+import ${tableInfo.packageName}.${tableInfo.className};
+import ${tableInfo.queryPackageName}.${tableInfo.className}Query;
+import ${tableInfo.servicePackageName}.${tableInfo.className}Service;
+
+import io.swagger.annotations.Api;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+/**
+ * @author $tableInfo.authorName
+ */
+@RestController
+@RequestMapping("/${tableInfo.lowerClassName}")
+@Api(value = "${tableInfo.tableComment}controller", tags = {"${tableInfo.tableComment}操作接口"})
+public class ${tableInfo.className}Controller {
+
+    @Autowired
+    private ${tableInfo.className}Service ${tableInfo.lowerClassName}Service;
+
+}

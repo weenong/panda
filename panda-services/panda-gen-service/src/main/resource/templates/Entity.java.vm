@@ -6,6 +6,12 @@ import java.util.Date;
 import java.math.BigDecimal;
 #end
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * ${tableInfo.tableComment}
@@ -13,26 +19,25 @@ import java.math.BigDecimal;
  * @author ${tableInfo.authorName}
  * @date ${datetime}
  */
+@Data
+@Accessors(chain = true)
+@TableName(value = "${tableInfo.tableName}")
 public class ${tableInfo.className} implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    #foreach ($column in ${tableInfo.columnInfo})
+    #if($!tableInfo.pk)
+    @TableId(value = "${tableInfo.pk.columnName}", type = IdType.AUTO)
+    private ${tableInfo.pk.attrType} $!{tableInfo.pk.attrName};
+    #end
+
+    #foreach($column in $tableInfo.columnInfo)
+    #if($!{column.attrName} != $!{tableInfo.pk.attrName})
     /**
      * $!{column.columnComment}
      */
+    @TableField(value = "$column.columnName",exist = true)
     private $column.attrType $column.attrName;
-
     #end
-
-    #foreach ($column in ${tableInfo.columnInfo})
-    public void set${column.upAttrName}($column.attrType $column.attrName) {
-        this.$column.attrName = $column.attrName;
-    }
-
-    public $column.attrType get${column.upAttrName}() {
-        return $column.attrName;
-    }
-
     #end
 
 }

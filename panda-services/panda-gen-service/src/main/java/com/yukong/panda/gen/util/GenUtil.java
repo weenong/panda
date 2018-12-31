@@ -5,7 +5,6 @@ import com.yukong.panda.gen.model.config.TableInfoConfig;
 import com.yukong.panda.gen.model.dto.BuildConfigDTO;
 import com.yukong.panda.gen.model.entity.ColumnInfo;
 import com.yukong.panda.gen.model.entity.TableInfo;
-import com.yukong.panda.gen.model.enums.GenTypeEnum;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -37,16 +36,26 @@ public class GenUtil {
     public static List<String> getTemplates(String genType) {
         List<String> templates = new ArrayList<String>();
         templates.add("templates/Entity.java.vm");
-        if(GenTypeEnum.IBATIS.getKey().equals(genType)) {
-            templates.add("templates/dao.java.vm");
-            templates.add("templates/daoImpl.java.vm");
-            templates.add("templates/IBatis_sql_map.xml.vm");
-            templates.add("templates/query.java.vm");
-            templates.add("templates/service.java.vm");
-            templates.add("templates/serviceImpl.java.vm");
-        } else {
-            templates.add("templates/Mapper.xml.vm");
-        }
+        templates.add("templates/query.java.vm");
+        templates.add("templates/controller.java.vm");
+        templates.add("templates/service.java.vm");
+        templates.add("templates/serviceImpl.java.vm");
+        templates.add("templates/mapper.java.vm");
+        templates.add("templates/Mapper.xml.vm");
+        templates.add("templates/vue_element.vue.vm");
+        templates.add("templates/api.js.vm");
+
+//        if(GenTypeEnum.IBATIS.getKey().equals(genType)) {
+//            templates.add("templates/dao.java.vm");
+//            templates.add("templates/daoImpl.java.vm");
+//            templates.add("templates/IBatis_sql_map.xml.vm");
+//            templates.add("templates/query.java.vm");
+//            templates.add("templates/service.java.vm");
+//            templates.add("templates/serviceImpl.java.vm");
+//        } else {
+//            templates.add("templates/mapper.java.vm");
+//            templates.add("templates/Mapper.xml.vm");
+//        }
         return templates;
     }
 
@@ -112,12 +121,13 @@ public class GenUtil {
      * 获取文件名
      */
     public static String getFileName(String template,TableInfoConfig tableInfoConfig) {
-        String packagePath = "main" + File.separator + "java" + File.separator
-                + tableInfoConfig.getPackageName().replace(".", File.separator);
+        String modelPackagePath = "main" + File.separator + "java" + File.separator
+                + tableInfoConfig.getModelPackageName().replace(".", File.separator);
         String resourcesPath = "main" + File.separator + "resources";
+        String frontPath = "main" + File.separator + "front";
         String className = tableInfoConfig.getClassName();
         if (template.contains("Entity.java.vm")) {
-            return packagePath + File.separator + className
+            return modelPackagePath + File.separator + "entity" + File.separator + className
                     + ".java";
         }
         if (template.contains("dao.java.vm")) {
@@ -125,6 +135,13 @@ public class GenUtil {
                     + tableInfoConfig.getDaoPackageName().replace(".", File.separator);
             return path + File.separator+ className
                     + "Dao.java";
+        }
+
+        if (template.contains("mapper.java.vm")) {
+            String path = "main" + File.separator + "java" + File.separator
+                    + tableInfoConfig.getDaoPackageName().replace(".", File.separator);
+            return path + File.separator+ className
+                    + "Mapper.java";
         }
 
         if (template.contains("daoImpl.java.vm")) {
@@ -135,7 +152,7 @@ public class GenUtil {
         }
         if (template.contains("service.java.vm")) {
             String path = "main" + File.separator + "java" + File.separator
-                    + tableInfoConfig.getServiceApiPackageName().replace(".", File.separator);
+                    + tableInfoConfig.getServicePackageName().replace(".", File.separator);
             return path + File.separator+ className
                     + "Service.java";
         }
@@ -145,10 +162,16 @@ public class GenUtil {
             return path + File.separator + "impl" + File.separator + className
                     + "ServiceImpl.java";
         }
+        if (template.contains("controller.java.vm")) {
+            String path = "main" + File.separator + "java" + File.separator
+                    + tableInfoConfig.getControllerPackageName().replace(".", File.separator);
+            return path + File.separator+ className
+                    + "Controller.java";
+        }
         if (template.contains("query.java.vm")) {
             String path = "main" + File.separator + "java" + File.separator
-                    + tableInfoConfig.getQueryPackageName().replace(".", File.separator);
-            return path + File.separator + className
+                    + tableInfoConfig.getModelPackageName().replace(".", File.separator);
+            return path + File.separator + "query" + File.separator + className
                     + "Query.java";
         }
 
@@ -158,8 +181,16 @@ public class GenUtil {
         }
 
         if (template.contains("Mapper.xml.vm")) {
-            return resourcesPath + File.separator+ className
+            return resourcesPath + File.separator + "mapper" + File.separator + className
                     + "Mapper.xml";
+        }
+
+        if(template.contains("vue_element.vue.vm")){
+            return frontPath + File.separator + "vue" + File.separator + "index.vue";
+        }
+
+        if(template.contains("api.js.vm")){
+            return frontPath + File.separator + "api" + File.separator + tableInfoConfig.getLowerClassName() + ".js";
         }
         return null;
     }
@@ -175,10 +206,13 @@ public class GenUtil {
 
         BeanUtils.copyProperties(buildConfigDTO, tableInfoConfig);
 
-        if(StringUtils.isEmpty(tableInfoConfig.getPackageName())) {
-            tableInfoConfig.setPackageName(configuration.getString("packageName", "com.yukong.panda.gen.model.entity"));
-
+        if(StringUtils.isEmpty(tableInfoConfig.getModelPackageName())) {
+            String modelPackageName = configuration.getString("modelPackageName", "com.yukong.panda.gen.model");
+            tableInfoConfig.setModelPackageName(modelPackageName);
         }
+        tableInfoConfig.setPackageName(tableInfoConfig.getModelPackageName() + ".entity");
+        tableInfoConfig.setQueryPackageName(tableInfoConfig.getModelPackageName() + ".query");
+
         if(StringUtils.isEmpty(tableInfoConfig.getDaoPackageName())) {
             tableInfoConfig.setDaoPackageName(configuration.getString("daoPackageName", "com.yukong.panda.gen.mapper"));
 
@@ -196,9 +230,14 @@ public class GenUtil {
             tableInfoConfig.setServicePackageName(configuration.getString("servicePackageName", "com.yukong.panda.gen.service"));
         }
 
-        if(StringUtils.isEmpty(tableInfoConfig.getQueryPackageName())) {
-            tableInfoConfig.setQueryPackageName(configuration.getString("queryPackageName", "com.yukong.panda.gen.mapper"));
+        if(StringUtils.isEmpty(tableInfoConfig.getControllerPackageName())) {
+            tableInfoConfig.setControllerPackageName(configuration.getString("controllerPackageName", "com.yukong.panda.gen.controller"));
         }
+
+//
+//        if(StringUtils.isEmpty(tableInfoConfig.getQueryPackageName())) {
+//            tableInfoConfig.setQueryPackageName(configuration.getString("queryPackageName", "com.yukong.panda.gen.mapper"));
+//        }
 
     }
 

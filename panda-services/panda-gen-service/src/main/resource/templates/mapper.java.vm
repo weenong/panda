@@ -1,0 +1,14 @@
+package $tableInfo.daoPackageName;
+
+import ${tableInfo.packageName}.${tableInfo.className};
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import java.sql.SQLException;
+import java.util.List;
+
+/**
+ * @author $tableInfo.authorName
+ */
+public interface ${tableInfo.className}Mapper extends BaseMapper<${tableInfo.className}> {
+
+}

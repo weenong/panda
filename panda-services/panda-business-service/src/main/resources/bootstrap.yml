@@ -1,8 +1,8 @@
 server:
-  port: 9092
+  port: 9001
 spring:
   application:
-    name: panda-gen-service
+    name: panda-business-service
   profiles:
     active: dev
   cloud:
@@ -21,11 +21,8 @@ eureka:
   client:
     service-url:
       defauleZone: http://localhost:8761/eureka/
-
 mybatis-plus:
-  mapper-locations: classpath:/mapper/*Mapper.xml
-  #实体扫描，多个package用逗号或者分号分隔
-  typeAliasesPackage: com.yukong.entity
+  mapper-locations: classpath:/com/panda/business/*/mapper/*Mapper.xml
   global-config:
     db-config:
       #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
@@ -34,14 +31,10 @@ mybatis-plus:
       field-strategy: NOT_EMPTY
       #驼峰下划线转换
       table-underline: true
-      #mp2.3+ 全局表前缀 mp_
-      #table-prefix: mp_
       #刷新mapper 调试神器
-      #refresh-mapper: true
+      refresh-mapper: true
       #数据库大写下划线转换
       #capital-mode: true
-      # Sequence序列接口实现类配置
-      #key-generator: com.baomidou.mybatisplus.incrementer.OracleKeyGenerator
       #逻辑删除配置（下面3个配置）
       logic-delete-value: 1
       logic-not-delete-value: 0
@@ -57,4 +50,4 @@ mybatis-plus:
 # Logger Config
 logging:
   level:
-    com.yukong.panda.gen.mapper: debug
+    com.yukong.panda.user.mapper: debug

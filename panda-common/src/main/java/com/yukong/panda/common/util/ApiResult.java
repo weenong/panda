@@ -2,6 +2,9 @@ package com.yukong.panda.common.util;
 
 import com.yukong.panda.common.enums.ResponseCodeEnum;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -10,7 +13,8 @@ import java.io.Serializable;
  * @date: 2018/10/12 10:39
  * @description: 统一响应信息主体
  */
-@Data
+@Getter
+@Setter
 public class ApiResult<T> implements Serializable {
 
     private T data;

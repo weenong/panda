@@ -1,0 +1,235 @@
+<template>
+    <div>
+        <div class="search-container">
+            <div class="search-inp-container">
+                <el-input @keyup.enter.native="handleSearch" placeholder="" v-model="listQuery.$!{tableInfo.pk.attrName}" clearable>
+                </el-input>
+            </div>
+            <el-button class="search-btn" type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+            <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="handleAdd">添加</el-button>
+            <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
+        </div>
+        <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row>
+        #foreach ($column in ${tableInfo.columnInfo})
+            <el-table-column align="center" prop="${column.attrName}" label="${column.attrName}" width="80">
+            </el-table-column>
+        #end
+            <el-table-column align="center" label="操作" width="180" v-if="sys_user_update  || sys_user_delete ">
+                <template slot-scope="scope">
+                    <el-button v-if="sys_user_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
+                    <el-button v-if="sys_user_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div v-show="!listLoading" class="pagination-container">
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-size="listQuery.size" :page-sizes="[10, 40, 80, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
+            </el-pagination>
+        </div>
+
+        <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%">
+            <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+            #foreach ($column in ${tableInfo.columnInfo})
+                <el-form-item label="${column.attrName}" prop="${column.attrName}">
+                    <el-input class="w347" v-model="form.${column.attrName}" placeholder="$!{column.columnComment}"></el-input>
+                </el-form-item>
+            #end
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancel('form')">取 消</el-button>
+                <el-button v-if="dialogStatus=='create'" type="primary" @click="create('form')">确 定</el-button>
+                <el-button v-else type="primary" @click="update('form')">修 改</el-button>
+            </div>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import { fetchList, delObj, getObj, addObj, putObj } from '@/api/${tableInfo.lowerClassName}'
+    import { mapGetters } from 'vuex'
+    export default {
+        data() {
+            return {
+                tableKey: 0,
+                listLoading: false,
+                list: [],
+                listQuery: {
+                    current: 1,
+                    size: 10
+                },
+                total: 0,
+                dialogFormVisible: false,
+                form: {
+                    #foreach ($column in ${tableInfo.columnInfo})
+                    $column.attrName: undefined,
+                    #end
+                },
+                rules: {
+                    #foreach ($column in ${tableInfo.columnInfo})
+                    $column.attrName: [
+                    {
+                        required: true,
+                        message: '请输入',
+                        trigger: 'blur'
+                    }
+                    ],
+                    #end
+                },
+                textMap: {
+                    update: '编辑',
+                    create: '创建'
+                },
+                dialogStatus: '',
+                isDisabled: {
+                   0: false,
+                   1: true
+                },
+                statusOptions: ['0', '1'],
+                checkedKeys: [],
+            }
+        },
+
+        components: {},
+        filters: {
+            statusFilter(status) {
+                const statusMap = {
+                    0: '有效',
+                    1: '无效',
+                    9: '锁定'
+                }
+                return statusMap[status]
+            }
+        },
+        computed: {
+            ...mapGetters(['permissions'])
+        },
+
+        mounted() {
+            this.getList()
+        },
+        methods: {
+            getList() {
+                this.listLoading = true
+                this.listQuery.isAsc = false
+                fetchList(this.listQuery).then(response => {
+                    this.list = response.data.records
+                    this.total = response.data.total
+                    this.listLoading = false
+                })
+            },
+            refreshHandle() {
+                this.listQuery.current = 1
+                this.listQuery.size = 10
+                this.getList()
+            },
+            handleAdd() {
+                this.dialogStatus = 'create'
+                this.dialogFormVisible = true
+            },
+            handleDelete(row) {
+                this.$confirm(
+                    '此操作将永久删除该记录, 是否继续?',
+                    '提示',
+                    {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }
+                ).then(() => {
+                    delObj(row.$!{tableInfo.pk.attrName})
+                    .then(() => {
+                        this.getList()
+                        this.$notify({
+                            title: '成功',
+                            message: '删除成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                    })
+                    .cache(() => {
+                        this.$notify({
+                            title: '失败',
+                            message: '删除失败',
+                            type: 'error',
+                            duration: 2000
+                        })
+                    })
+                })
+            },
+            handleEdit(row) {
+                this.dialogStatus = 'update'
+                getObj(row.$!{tableInfo.pk.attrName}).then(response => {
+                    this.form = response.data
+                    this.dialogFormVisible = true
+                    this.dialogStatus = 'update'
+                    this.dialogFormVisible = true
+                })
+            },
+            handleSearch() {
+                this.listQuery.current = 1
+                this.getList()
+            },
+            handleSizeChange(val) {
+                this.listQuery.size = val
+                this.getList()
+            },
+            handleCurrentChange(val) {
+                this.listQuery.current = val
+                this.getList()
+            },
+            create(formName) {
+                const set = this.$refs
+                this.bindRoleInfo()
+                set[formName].validate(valid => {
+                    if (valid) {
+                        addObj(this.form).then(() => {
+                            this.dialogFormVisible = false
+                            this.getList()
+                            this.$notify({
+                                title: '成功',
+                                message: '创建成功',
+                                type: 'success',
+                                duration: 2000
+                            })
+                        })
+                    } else {
+                        return false
+                    }
+                })
+            },
+            cancel(formName) {
+                this.dialogFormVisible = false
+                this.$refs\[formName].resetFields()
+            },
+            update(formName) {
+                const set = this.$refs
+                this.bindRoleInfo()
+                set[formName].validate(valid => {
+                    if (valid) {
+                        this.dialogFormVisible = false
+                        this.form.password = undefined
+                        putObj(this.form).then(() => {
+                            this.dialogFormVisible = false
+                            this.getList()
+                            this.$notify({
+                                title: '成功',
+                                message: '修改成功',
+                                type: 'success',
+                                duration: 2000
+                            })
+                        })
+                    } else {
+                        return false
+                    }
+                })
+            }
+        }
+    }
+
+</script>
+
+
+<style lang='scss' scoped>
+        .w347 {
+        width: 100%;
+        }
+</style>

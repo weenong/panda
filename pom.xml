@@ -28,6 +28,7 @@
         <qcloudsms.version>1.0.5</qcloudsms.version>
     </properties>
     <modules>
+        <module>panda-server</module>
         <module>panda-services</module>
         <module>panda-auth</module>
         <module>panda-common</module>

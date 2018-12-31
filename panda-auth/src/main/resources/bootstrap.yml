@@ -15,9 +15,17 @@ spring:
       label: ${spring.profiles.active}
       name: ${spring.application.name}
 
+eureka:
+  instance:
+    hostname: localhost
+    preferIpAddress: true
+  client:
+    service-url:
+      defauleZone: http://localhost:8761/eureka/
 
 ignore:
   urls:
+  - /actuator/**
   - /token/**
   - /mobile/**
   - /**/*.css

@@ -1,9 +1,10 @@
 package ${tableInfo.servicePackageName}.impl;
 
-import ${tableInfo.daoPackageName}.${tableInfo.className}DAO;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import ${tableInfo.daoPackageName}.${tableInfo.className}Mapper;
 import ${tableInfo.packageName}.${tableInfo.className};
 import ${tableInfo.queryPackageName}.${tableInfo.className}Query;
-import ${tableInfo.serviceApiPackageName}.${tableInfo.className}Service;
+import ${tableInfo.servicePackageName}.${tableInfo.className}Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,34 +16,8 @@ import java.util.List;
  * @author $tableInfo.authorName
  */
 @Service
-public class ${tableInfo.className}ServiceImpl implements ${tableInfo.className}Service {
+public class ${tableInfo.className}ServiceImpl extends ServiceImpl<${tableInfo.className}Mapper, ${tableInfo.className}> implements ${tableInfo.className}Service {
     @Autowired
-    private ${tableInfo.className}DAO ${tableInfo.lowerClassName}DAO;
+    private ${tableInfo.className}Mapper ${tableInfo.lowerClassName}Mapper;
 
-    @Override
-    @Transactional
-    public Long insert(${tableInfo.className} ${tableInfo.lowerClassName}) throws SQLException {
-        return ${tableInfo.lowerClassName}DAO.insert(${tableInfo.lowerClassName});
-    }
-
-    @Transactional
-    @Override
-    public Integer updateById(${tableInfo.className} ${tableInfo.lowerClassName}) throws SQLException {
-        return ${tableInfo.lowerClassName}DAO.updateById(${tableInfo.lowerClassName});
-    }
-
-    @Override
-    public ${tableInfo.className} selectById(Long id) throws SQLException {
-        return ${tableInfo.lowerClassName}DAO.selectById(id);
-    }
-
-    @Override
-    public List<${tableInfo.className}> listByCondition(${tableInfo.className} condition) throws SQLException {
-        return ${tableInfo.lowerClassName}DAO.listByCondition(condition);
-    }
-
-    @Override
-    public ${tableInfo.className}Query queryPages(${tableInfo.className}Query query) throws SQLException {
-        return ${tableInfo.lowerClassName}DAO.queryByPagination(query);
-    }
 }

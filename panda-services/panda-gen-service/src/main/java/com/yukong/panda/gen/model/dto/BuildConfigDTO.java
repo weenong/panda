@@ -18,13 +18,17 @@ public class BuildConfigDTO {
     /**
      * 包名
      */
-    private String packageName;
+    private String modelPackageName;
 
     /**
      * query类的包名
      */
-    private String queryPackageName;
+//    private String queryPackageName;
 
+    /**
+     * controller类包名
+     */
+    private String controllerPackageName;
     /**
      * service类包名
      */

@@ -10,18 +10,26 @@ import org.springframework.stereotype.Component;
  * @date: 2018/11/8 13:54
  */
 @Data
-
 public class BaseConfig {
 
     /**
-     * 包名
+     * entity包名
      */
     private String packageName;
+    /**
+     * model包名
+     */
+    private String modelPackageName;
 
     /**
      * query类的包名
      */
     private String queryPackageName;
+
+    /**
+     * controller类的包名
+     */
+    private String controllerPackageName;
 
     /**
      * service类包名
